@@ -1,11 +1,11 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-  kotlin("jvm") version "1.8.10"
-  kotlin("plugin.serialization") version "1.8.10"
+  kotlin("jvm") version "2.1.0"
+  kotlin("plugin.serialization") version "2.1.0"
   java
-  id("fabric-loom") version "1.1-SNAPSHOT"
-  id("com.github.johnrengelman.shadow") version "7.1.2"
+  id("fabric-loom") version "1.9.2"
+  id("com.github.johnrengelman.shadow") version "8.1.1"
   id("com.modrinth.minotaur") version "2.+"
 }
 
@@ -113,31 +113,35 @@ tasks {
 }
 
 java {
-  val javaVersion = JavaVersion.toVersion(targetJavaVersion)
-  if (JavaVersion.current() < javaVersion) {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-  }
+    val javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
+    }
+}
+
+kotlin {
+
 }
 
 val modrinth_id: String by project
 
 modrinth {
-  token.set(System.getenv("MODRINTH_TOKEN"))
-  projectId.set(modrinth_id)
-  versionNumber.set("$mod_version")
-  versionName.set("CTM Fabric $mod_version")
-  gameVersions.add(minecraft_version)
-  loaders.add("fabric")
-  loaders.add("quilt")
-  dependencies {
-    required.project("create-fabric")
-    required.project("fabric-api")
-    required.project("fabric-language-kotlin")
-  }
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set(modrinth_id)
+    versionNumber.set("$mod_version")
+    versionName.set("CTM Fabric $mod_version")
+    gameVersions.add(minecraft_version)
+    loaders.add("fabric")
+    loaders.add("quilt")
+    dependencies {
+        required.project("create-fabric")
+        required.project("fabric-api")
+        required.project("fabric-language-kotlin")
+    }
 
-  uploadFile.set { tasks.remapJar.get().archiveFile }
-  changelog.set(project.file("CHANGELOG.md").readText())
-  syncBodyFrom.set(project.file("README.md").readText())
+    uploadFile.set { tasks.remapJar.get().archiveFile }
+    changelog.set(project.file("CHANGELOG.md").readText())
+    syncBodyFrom.set(project.file("README.md").readText())
 }
 
 tasks.modrinth.get().dependsOn(tasks.modrinthSyncBody)
